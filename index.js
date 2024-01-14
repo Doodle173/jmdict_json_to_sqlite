@@ -64,5 +64,20 @@ db.serialize(() => {
 
     console.log("Languages table has been created. \n");
     
+    /**
+     * Create the tags table and insert the correct data..
+     */
+    console.log("Creating tags table...");
 
+    db.run("CREATE TABLE tags (tag_type TEXT, tag TEXT)");
+
+    for(var tag in obj.tags){
+        // console.log(tag+": "+obj.tags[tag]);
+        stmt = db.prepare(`INSERT INTO tags(tag_type, tag) VALUES ("${tag}", "${obj.tags[tag]}")`);
+        stmt.run();
+        stmt.finalize();
+    }
+
+    console.log("Tags table has been created. \n");
+    
 });
