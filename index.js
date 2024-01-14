@@ -49,7 +49,9 @@ function create_words_table(db) {
     for (var i = 0; i < words.length; i++) {
         var word = words[i];
         console.log(word);
-
+        stmt = db.prepare(`INSERT INTO words(id) VALUES ("${word.id}")`);
+        stmt.run();
+        stmt.finalize();
 
         break;
     }
