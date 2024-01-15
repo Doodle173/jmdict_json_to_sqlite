@@ -10,19 +10,17 @@ for (var i = 0; i < words.length; i++) {
     var word = words[i];
 
 
-    for (var i = 0; i < word.sense.length; i++) {
-        var sense = word.sense[i];
+    for (var j = 0; j < word.sense.length; j++) {
+        var gloss = word.sense[i].gloss;
 
-        var temp = sense.languageSource;
-        console.log(temp);
-        if(temp.length != 0){
-            console.log(temp);
+        for (var k = 0; k < gloss.length; k++) {
+            var _gloss = gloss[k];
+    
+            console.log(_gloss);
             break;
-        }else{
-            
         }
+        break;
     }
-
-
+    break;
 }
 

@@ -34,15 +34,32 @@ db.serialize(() => {
 });
 
 function create_all_tables(db) {
-    db.run("CREATE TABLE kana (id TEXT, applies_to_kanji TEXT, common TEXT, tag TEXT, txt TEXT)");
+    db.run("CREATE TABLE kana  (id TEXT, applies_to_kanji TEXT, common TEXT, tag TEXT, txt TEXT)");
     db.run("CREATE TABLE kanji (id TEXT, common TEXT, tag TEXT, txt TEXT)");
 
     db.run("CREATE TABLE sense (id TEXT, part_of_speech TEXT, applies_to_kanji TEXT, applies_to_kana TEXT, related TEXT)");
 
+    db.run("CREATE TABLE gloss (id TEXT, lang TEXT, gender TEXT, type TEXT, txt TEXT)");
 
     parse_data(db);
 
 
+}
+
+function parse_gloss(gloss, id, db) {
+    console.log(gloss);
+
+    var lang, gender, type, text = "";
+    for(var i=0; i < gloss.length; i++){
+        lang = gloss[i].lang;
+        gender = gloss[i].gender;
+        type = gloss[i].type;
+        text = gloss[i].text;
+    }
+
+    stmt = db.prepare(`INSERT INTO gloss(id, lang, gender, type, txt) VALUES("${id}", "${lang}", "${gender}", "${type}", "${text}")`);
+    stmt.run();
+    stmt.finalize();
 }
 
 function parse_sense(word, db) {
@@ -88,9 +105,15 @@ function parse_sense(word, db) {
             
             for(var n = 0; n < related.length; n++){
                 _related = related[n];
-                console.log(_related);
+                // console.log(_related);
             }
         }
+
+        var gloss = sense.gloss;
+        if(gloss.length != 0){
+            parse_gloss(gloss, word.id, db);
+        }
+
 
         stmt = db.prepare(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES ("${word.id}", "${pos}", "${_appliesToKanji}", "${appliesToKana}", "${_related}")`);
         stmt.run();
