@@ -31,16 +31,16 @@ db.serialize(() => {
 
 
 
-
 });
 
 function create_words_table(db) {
     /**
      * Create the tags table and insert the correct data..
      */
-    console.log("Creating words table...");
+    // console.log("Creating words table...");
 
     db.run("CREATE TABLE words (id TEXT)");
+    db.run("CREATE TABLE kana (id TEXT, applies_to_kanji TEXT, common TEXT, tag TEXT, txt TEXT)");
 
     var tmp = JSON.stringify(obj.words);
     var words = JSON.parse(tmp);
@@ -48,16 +48,53 @@ function create_words_table(db) {
 
     for (var i = 0; i < words.length; i++) {
         var word = words[i];
-        console.log(word);
+        
+        /**
+         * Insert the ID into the current word's entry
+         */
         stmt = db.prepare(`INSERT INTO words(id) VALUES ("${word.id}")`);
         stmt.run();
         stmt.finalize();
 
+        
+        for (var j = 0; j < word.kana.length; j++) {
+            var kana = word.kana[j];
+            console.log(kana);
+
+            /**
+             * Insert the ID into the current word's kana entry
+             */
+    
+            /**
+             * Get the fields in the kana's 'tags' array
+             */
+            var kana_tags = kana.tags;
+            var current_tag = "";
+            for(var k = 0; k < kana_tags.length; k++){
+                var current_tag = kana_tags[k];
+            }
+
+            /**
+             * Get the fields in the kana's 'appliesToKanji' array
+             */
+            var kana_applies_to_kanji = kana.appliesToKanji;
+            var appliesToKanji = "";
+            for(var l = 0; l < kana_tags.length; l++){
+                appliesToKanji = kana_applies_to_kanji[l];
+            }
+
+
+            stmt = db.prepare(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES ("${word.id}", "${appliesToKanji}", "${kana.common}", "${current_tag}", "${kana.text}")`);
+            stmt.run();
+            stmt.finalize();
+            
+        }
+
+
         break;
     }
 
-
-    console.log("Tags table has been created. \n");
+    // console.log("Words table has been created. \n");
 }
 
 function create_tags_table(db) {
