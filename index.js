@@ -81,7 +81,6 @@ function create_words_table(db) {
             var appliesToKanji = "";
             for(var l = 0; l < kana_applies_to_kanji.length; l++){
                 appliesToKanji = kana_applies_to_kanji[l];
-                console.log(appliesToKanji);
             }
 
 
@@ -92,7 +91,7 @@ function create_words_table(db) {
         }
 
 
-        break;
+        // break;
     }
 
     // console.log("Words table has been created. \n");
