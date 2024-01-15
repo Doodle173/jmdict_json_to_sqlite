@@ -76,18 +76,12 @@ db.serialize(() => {
     insert_revisions(db);
     insert_languages(db);
     insert_tags(db);
+
+    console.log("Parsing data into tables...");
+    parse_data(db);
+    console.log("Parsing complete.");
 });
 
-function create_all_tables(db) {
-
-
-    console.log("All tables created.");
-    console.log("Parsing data into tables...");
-
-    parse_data(db);
-
-    console.log("Parsing complete.");
-}
 
 function parse_gloss(gloss, id, db) {
     // console.log(gloss);
@@ -248,20 +242,6 @@ function parse_data(db) {
         */
         if (word.kana.length != 0) {
             parse_kana(word, db);
-        }
-
-        /**
-         * Parse this word's kanji fields.
-         */
-        if (word.kanji.length != 0) {
-            parse_kanji(word, db);
-        }
-
-        /**
-        * Parse this word's kanji fields.
-        */
-        if (word.sense.length != 0) {
-            parse_sense(word, db);
         }
     }
 
