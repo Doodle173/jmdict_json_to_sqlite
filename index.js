@@ -18,34 +18,68 @@ var obj = JSON.parse(fs.readFileSync('data/jmdict-eng-3.5.0.json', 'utf8'));
 
 
 db.serialize(() => {
-    console.log('successfully created ./test.db \n');
+    db.run("CREATE TABLE metadata (version TEXT, build_date TEXT, commonOnly INTEGER)", function (err) {
+        if (err) {
+            return console.error(err.message);
+        }
+        console.log("Metadata table has been created.");
+    });
+    db.run("CREATE TABLE languages (language TEXT)", function (err) {
+        if (err) {
+            return console.error(err.message);
+        }
+        console.log("Metadata table has been created.");
+    });
+    
+    db.run("CREATE TABLE revisions(revision TEXT)", function (err) {
+        if (err) {
+            return console.error(err.message);
+        }
+        console.log("Revisions table has been created.");
+    });
+    
+    db.run("CREATE TABLE tags (tag_type TEXT, tag TEXT)", function (err) {
+        if (err) {
+            return console.error(err.message);
+        }
+        console.log("Tags table has been created.");
+    });
+    db.run("CREATE TABLE kana (id TEXT, applies_to_kanji TEXT, common TEXT, tag TEXT, txt TEXT)", function (err) {
+        if (err) {
+            return console.error(err.message);
+        }
+        console.log("Kana table has been created.");
+    });
+    
+    db.run("CREATE TABLE kanji (id TEXT, common TEXT, tag TEXT, txt TEXT)", function (err) {
+        if (err) {
+            return console.error(err.message);
+        }
+        console.log("Kanji table has been created.");
+    });
+    
+    db.run("CREATE TABLE sense (id TEXT, part_of_speech TEXT, applies_to_kanji TEXT, applies_to_kana TEXT, related TEXT)", function (err) {
+        if (err) {
+            return console.error(err.message);
+        }
+        console.log("Sense table has been created.");
+    });
+    
+    db.run("CREATE TABLE gloss (id TEXT, lang TEXT, gender TEXT, type TEXT, txt TEXT)", function (err) {
+        if (err) {
+            return console.error(err.message);
+        }
+        console.log("Gloss table has been created.");
+    });
 
-    create_all_tables(db);
-    db.close();
-    exit();
+    insert_metadata(db);
+    insert_revisions(db);
+    insert_languages(db);
+    insert_tags(db);
 });
 
 function create_all_tables(db) {
-    db.run("CREATE TABLE metadata (version TEXT, build_date TEXT, commonOnly INTEGER)");
-    db.run("CREATE TABLE tags (tag_type TEXT, tag TEXT)");
 
-    db.run("CREATE TABLE kana  (id TEXT, applies_to_kanji TEXT, common TEXT, tag TEXT, txt TEXT)");
-    console.log("Kana table has been created. \n");
-
-    db.run("CREATE TABLE kanji (id TEXT, common TEXT, tag TEXT, txt TEXT)");
-    console.log("Kanji table has been created. \n");
-
-    db.run("CREATE TABLE sense (id TEXT, part_of_speech TEXT, applies_to_kanji TEXT, applies_to_kana TEXT, related TEXT)");
-    console.log("Sense table has been created. \n");
-
-    db.run("CREATE TABLE gloss (id TEXT, lang TEXT, gender TEXT, type TEXT, txt TEXT)");
-    console.log("Gloss table has been created. \n");
-
-
-    create_metadata_table(db);
-    create_revisions_table(db);
-    create_languages_table(db);
-    create_tags_table(db);
 
     console.log("All tables created.");
     console.log("Parsing data into tables...");
@@ -235,27 +269,19 @@ function parse_data(db) {
 
 }
 
-function create_tags_table(db) {
+function insert_tags(db) {
     for (var tag in obj.tags) {
         // console.log(tag+": "+obj.tags[tag]);
         // stmt = db.prepare(`INSERT INTO tags(tag_type, tag) VALUES ("${tag}", "${obj.tags[tag]}")`);
-        stmt = db.prepare(`INSERT INTO tags(tag_type, tag) VALUES ("${tag}", "${obj.tags[tag]}")`);
+        stmt = db.prepare(`INSERT INTO tags(tag_type, tag) VALUES (?, ?)`, tag, obj.tags[tag]);
         stmt.run();
         stmt.finalize();
     }
-
-    console.log("Tags table has been created. \n");
 }
 
-function create_revisions_table(db) {
-    /**
-    * Create the revisions table and insert the correct data..
-    */
-    console.log("Creating revisions table...");
-
-    db.run("CREATE TABLE revisions (revision TEXT)");
+function insert_revisions(db) {
     obj.dictRevisions.forEach(async (rev) => {
-        stmt = db.prepare(`INSERT INTO revisions(revision) VALUES ("${rev}")`);
+        stmt = db.prepare(`INSERT INTO revisions(revision) VALUES (?)`, rev);
         stmt.run();
         stmt.finalize();
     });
@@ -263,38 +289,24 @@ function create_revisions_table(db) {
     console.log("Revisions table has been created. \n");
 }
 
-function create_languages_table(db) {
-    /**
-    * Create the languages table and insert the correct data..
-    */
-
-    console.log("Creating languages table...");
-    db.run("CREATE TABLE languages (language TEXT)");
+function insert_languages(db) {
     obj.languages.forEach(async (lang) => {
         stmt = db.prepare(`INSERT INTO languages(language) VALUES (?)`, lang);
         stmt.run();
         stmt.finalize();
     });
-
-    console.log("Languages table has been created. \n");
-
 }
 
-function create_metadata_table(db) {
+function insert_metadata(db) {
     var common = 0;
 
     if (obj.commonOnly == true) {
         common = 1;
     }
 
-    /**
-     * Create the metadata table and insert the correct data..
-     */
-    console.log("Creating metadata table...");
     // var stmt = db.prepare(`INSERT INTO metadata(version, build_date, commonOnly) VALUES ("${obj.version}", "${obj.dictDate}", ${common})`);
     var stmt = db.prepare(`INSERT INTO metadata(version, build_date, commonOnly) VALUES (?, ?, ?)`, obj.version, obj.dictDate, common);
 
     stmt.run();
     stmt.finalize();
-    console.log("Metadata table has been created. \n");
 }
