@@ -59,7 +59,7 @@ function create_words_table(db) {
         
         for (var j = 0; j < word.kana.length; j++) {
             var kana = word.kana[j];
-            console.log(kana);
+            // console.log(kana);
 
             /**
              * Insert the ID into the current word's kana entry
@@ -79,8 +79,9 @@ function create_words_table(db) {
              */
             var kana_applies_to_kanji = kana.appliesToKanji;
             var appliesToKanji = "";
-            for(var l = 0; l < kana_tags.length; l++){
+            for(var l = 0; l < kana_applies_to_kanji.length; l++){
                 appliesToKanji = kana_applies_to_kanji[l];
+                console.log(appliesToKanji);
             }
 
 
