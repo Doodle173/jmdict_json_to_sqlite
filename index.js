@@ -36,9 +36,67 @@ db.serialize(() => {
 function create_all_tables(db) {
     db.run("CREATE TABLE kana (id TEXT, applies_to_kanji TEXT, common TEXT, tag TEXT, txt TEXT)");
     db.run("CREATE TABLE kanji (id TEXT, common TEXT, tag TEXT, txt TEXT)");
+
+    db.run("CREATE TABLE sense (id TEXT, part_of_speech TEXT, applies_to_kanji TEXT, applies_to_kana TEXT, related TEXT)");
+
+
     parse_data(db);
 
 
+}
+
+function parse_sense(word, db) {
+    /**
+     * Handle this word's kana field
+     */
+    for (var i = 0; i < word.sense.length; i++) {
+        var sense = word.sense[i];
+
+        /**
+         * Get the entry's part of speech data
+         */
+        var pos = "";
+        for (var j = 0; j < sense.partOfSpeech.length; j++) {
+            pos = sense.partOfSpeech[j];
+            // console.log(pos);
+        }
+
+        /**
+         * Get the entry's appliesToKanji data
+         */
+        var _appliesToKanji = "";
+        for (var k = 0; k < sense.appliesToKanji.length; k++) {
+            _appliesToKanji = sense.appliesToKanji[k];
+            // console.log(_appliesToKanji);
+        }
+
+        /**
+         * Get the entry's appliesToKana data
+         */
+        var appliesToKana = "";
+        for (var l = 0; l < sense.appliesToKana.length; l++) {
+            appliesToKana = sense.appliesToKana[l];
+            // console.log(appliesToKana);
+        }
+
+        /**
+         * Get the entry's related data
+         */
+        var _related = "";
+        for (var m = 0; m < sense.related.length; m++) {
+            var related = sense.related[m];
+            
+            for(var n = 0; n < related.length; n++){
+                _related = related[n];
+                console.log(_related);
+            }
+        }
+
+        stmt = db.prepare(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES ("${word.id}", "${pos}", "${_appliesToKanji}", "${appliesToKana}", "${_related}")`);
+        stmt.run();
+        stmt.finalize();
+
+    }
 }
 
 function parse_kana(word, db) {
@@ -111,24 +169,31 @@ function parse_data(db) {
     for (var i = 0; i < words.length; i++) {
         var word = words[i];
 
-         /**
-         * Parse this word's kana fields.
-         */
-        if (word.kana.length != 0) {
-            parse_kana(word, db);
-        }
+        // /**
+        // * Parse this word's kana fields.
+        // */
+        // if (word.kana.length != 0) {
+        //     parse_kana(word, db);
+        // }
+
+        // /**
+        //  * Parse this word's kanji fields.
+        //  */
+        // if (word.kanji.length != 0) {
+        //     parse_kanji(word, db);
+        // }
 
         /**
-         * Parse this word's kanji fields.
-         */
-        if (word.kanji.length != 0) {
-            parse_kanji(word, db);
+        * Parse this word's kanji fields.
+        */
+        if (word.sense.length != 0) {
+            parse_sense(word, db);
         }
 
         /**
          * Break after 5 entries for testing purposes.
          */
-        if (i == 5) {
+        if (i == 0) {
             break;
         }
 
