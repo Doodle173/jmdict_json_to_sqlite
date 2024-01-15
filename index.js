@@ -34,6 +34,9 @@ db.serialize(() => {
 });
 
 function create_words_table(db) {
+
+    console.time("Parser Time");
+
     /**
      * Create the tags table and insert the correct data..
      */
@@ -85,6 +88,7 @@ function create_words_table(db) {
 
         if (word.kanji.length == 0) {
             //move on
+            break;
         } else {
             /**
              * Handle parsing of kanji table
@@ -110,7 +114,8 @@ function create_words_table(db) {
         }
     }
 
-    // console.log("Words table has been created. \n");
+    console.timeEnd("Parser Time");
+
 }
 
 function create_tags_table(db) {
