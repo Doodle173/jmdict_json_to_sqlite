@@ -44,51 +44,48 @@ function create_words_table(db) {
     var tmp = JSON.stringify(obj.words);
     var words = JSON.parse(tmp);
 
-
     for (var i = 0; i < words.length; i++) {
         var word = words[i];
 
-        if(word.kana.length == 0){
-            console.log("Entry has no kana field.");
-            break;
-        }else{
-                    /**
-         * Handle this word's kana field
-         */
-        for (var j = 0; j < word.kana.length; j++) {
-            var kana = word.kana[j];
-            /**
-             * Insert the ID into the current word's kana entry
-             */
+        if (word.kana.length == 0) {
+            //move on
+        } else {
 
             /**
-             * Get the fields in the kana's 'tags' array
+             * Handle this word's kana field
              */
-            var kana_tags = kana.tags;
-            var current_tag = "";
-            for (var k = 0; k < kana_tags.length; k++) {
-                current_tag = kana_tags[k];
-            }
+            for (var j = 0; j < word.kana.length; j++) {
+                var kana = word.kana[j];
+                /**
+                 * Insert the ID into the current word's kana entry
+                 */
 
-            /**
-             * Get the fields in the kana's 'appliesToKanji' array
-             */
-            var kana_applies_to_kanji = kana.appliesToKanji;
-            var appliesToKanji = "";
-            for (var l = 0; l < kana_applies_to_kanji.length; l++) {
-                appliesToKanji = kana_applies_to_kanji[l];
+                /**
+                 * Get the fields in the kana's 'tags' array
+                 */
+                var kana_tags = kana.tags;
+                var current_tag = "";
+                for (var k = 0; k < kana_tags.length; k++) {
+                    current_tag = kana_tags[k];
+                }
+
+                /**
+                 * Get the fields in the kana's 'appliesToKanji' array
+                 */
+                var kana_applies_to_kanji = kana.appliesToKanji;
+                var appliesToKanji = "";
+                for (var l = 0; l < kana_applies_to_kanji.length; l++) {
+                    appliesToKanji = kana_applies_to_kanji[l];
+                }
+                stmt = db.prepare(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES ("${word.id}", "${appliesToKanji}", "${kana.common}", "${current_tag}", "${kana.text}")`);
+                stmt.run();
+                stmt.finalize();
             }
-            stmt = db.prepare(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES ("${word.id}", "${appliesToKanji}", "${kana.common}", "${current_tag}", "${kana.text}")`);
-            stmt.run();
-            stmt.finalize();
-        }
         }
 
         if (word.kanji.length == 0) {
-            console.log("Entry has no kanji field.");
-            break;
+            //move on
         } else {
-
             /**
              * Handle parsing of kanji table
              */
@@ -111,7 +108,6 @@ function create_words_table(db) {
                 stmt.finalize();
             }
         }
-
     }
 
     // console.log("Words table has been created. \n");
