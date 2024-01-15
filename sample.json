@@ -1,13 +1,25 @@
 {
-    "id": "1000000",
-    "kanji": [],
+    "id": "1000040",
+    "kanji": [
+        {
+            "common": false,
+            "text": "〃",
+            "tags": []
+        }
+    ],
     "kana": [
         {
             "common": false,
-            "text": "ヽ",
-            "tags": [
-                "test"
-            ],
+            "text": "おなじ",
+            "tags": [],
+            "appliesToKanji": [
+                "*"
+            ]
+        },
+        {
+            "common": false,
+            "text": "おなじく",
+            "tags": [],
             "appliesToKanji": [
                 "*"
             ]
@@ -16,7 +28,7 @@
     "sense": [
         {
             "partOfSpeech": [
-                "unc"
+                "n"
             ],
             "appliesToKanji": [
                 "*"
@@ -24,11 +36,7 @@
             "appliesToKana": [
                 "*"
             ],
-            "related": [
-                [
-                    "一の字点"
-                ]
-            ],
+            "related": [],
             "antonym": [],
             "field": [],
             "dialect": [],
@@ -39,8 +47,8 @@
                 {
                     "lang": "eng",
                     "gender": null,
-                    "type": "explanation",
-                    "text": "repetition mark in katakana"
+                    "type": null,
+                    "text": "ditto mark"
                 }
             ]
         }
