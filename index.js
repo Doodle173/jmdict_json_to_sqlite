@@ -82,19 +82,19 @@ async function init() {
      * for now.
      */
 
-    console.log("Finished creating all tables. \n");
 
     await sleep(1000);
+
+    console.log("\n");
+    console.log("Finished creating all tables. \n");
 
     console.log("Parsing data into tables...");
     parse_data(db);
     console.log("Parsing complete.");
-
-    console.log("Writing database to file...");
-
-    db.close();
-    console.log("Done!");
+    console.log("Writing database to file. Program will exit upon completion.");
 }
+
+
 
 /**
  * Source: Aminadav Glickshtein
@@ -113,14 +113,15 @@ function parse_data(db) {
 
     var tmp = JSON.stringify(obj.words);
     var words = JSON.parse(tmp);
+    
     db.run("BEGIN TRANSACTION");
-
     for (var i = 0; i < words.length; i++) {
         var word = words[i];
 
         /**
         * Parse this word's kanji fields.
         */
+
         if (word.kanji.length != 0) {
             parse_kanji(word, db);
         }
@@ -131,9 +132,18 @@ function parse_data(db) {
         if (word.kana.length != 0) {
             parse_kana(word, db);
         }
+
+
+        /**
+        * Parse this word's sense fields.
+        */
+
+        if (word.sense.length != 0) {
+            parse_sense(word, db);
+        }
+        
     }
     db.run("COMMIT");
-    
     console.timeEnd("Parser Time");
 
 }
@@ -203,17 +213,23 @@ function parse_sense(word, db) {
             }
         }
 
-        var gloss = sense.gloss;
-        if (gloss.length != 0) {
-            parse_gloss(gloss, word.id, db);
-        }
+        // var gloss = sense.gloss;
+        // if (gloss.length != 0) {
+        //     parse_gloss(gloss, word.id, db);
+        // }
 
 
         // stmt = db.prepare(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES ("${word.id}", "${pos}", "${_appliesToKanji}", "${appliesToKana}", "${_related}")`);
-        stmt = db.prepare(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES (?, ?, ?, ?, ?)`, word.id, pos, _appliesToKanji, appliesToKana, related);
+        // stmt = db.prepare(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES (?, ?, ?, ?, ?)`, word.id, pos, _appliesToKanji, appliesToKana, related);
 
-        stmt.run();
-        stmt.finalize();
+        // stmt.run();
+        // stmt.finalize();
+
+        db.run(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES (?, ?, ?, ?, ?)`, [word.id, pos, _appliesToKanji, appliesToKana, related], function (err) {
+            if (err) {
+                return console.error(err.message);
+            }
+        });
 
     }
 }
