@@ -259,13 +259,13 @@ function insert_tags(db) {
 }
 
 function insert_revisions(db) {
-    obj.dictRevisions.forEach(async (rev) => {
+    for(var i=0; i < obj.dictRevisions.length; i++){
+        var rev = obj.dictRevisions[i];
+
         stmt = db.prepare(`INSERT INTO revisions(revision) VALUES (?)`, rev);
         stmt.run();
         stmt.finalize();
-    });
-
-    console.log("Revisions table has been created. \n");
+    }
 }
 
 function insert_languages(db) {
