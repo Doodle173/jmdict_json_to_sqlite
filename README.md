@@ -1,6 +1,6 @@
 A WIP utility to convert Scriptin's jmdict-simplified JSON files into a SQLite database.
 
-TO-DO (strikethrough = done):
+# TO-DO (strikethrough = done):
   - ~~Fix issue where values in the related column is only ever '[object - Object]' for the Sense table~~
 
   - Automate the downloading & importing of jmdict-simplified
