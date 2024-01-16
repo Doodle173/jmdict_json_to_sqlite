@@ -17,7 +17,7 @@ Throughout this project I've used external articles/code to help solve certain i
 Here is the source to each one that contributed to solving an important problem: 
 
 - jmdict-simplified by scriptin:
- - https://github.com/scriptin/jmdict-simplified
+  - https://github.com/scriptin/jmdict-simplified
 
 Inserting data into SQLite databases:
 https://www.sqlitetutorial.net/sqlite-nodejs/insert/
