@@ -2,15 +2,6 @@ const sqlite3 = require('sqlite3').verbose();
 
 var fs = require('fs');
 
-try {
-    fs.unlinkSync('./test.db');
-    console.log('successfully deleted ./test.db \n');
-} catch (err) {
-    // handle the error
-    console.log(err);
-}
-
-
 const db = new sqlite3.Database('./test.db');
 
 var obj = JSON.parse(fs.readFileSync('data/jmdict-eng-3.5.0.json', 'utf8'));
@@ -186,6 +177,7 @@ function parse_sense(word, db) {
 }
 
 function parse_kana(word, db) {
+
     /**
      * Handle this word's kana field
      */
@@ -213,11 +205,17 @@ function parse_kana(word, db) {
             appliesToKanji = kana_applies_to_kanji[l];
         }
         // stmt = db.prepare(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES ("${word.id}", "${appliesToKanji}", "${kana.common}", "${current_tag}", "${kana.text}")`);
-        stmt = db.prepare(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES (?, ?, ?, ?, ?)`, word.id, appliesToKanji, kana.common, current_tag, kana.text);
+        // stmt = db.prepare(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES (?, ?, ?, ?, ?)`, word.id, appliesToKanji, kana.common, current_tag, kana.text);
 
 
-        stmt.run();
-        stmt.finalize();
+        // stmt.run();
+        // stmt.finalize();
+
+        db.run(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES (?, ?, ?, ?, ?)`, [word.id, appliesToKanji, kana.common, current_tag, kana.text], function (err) {
+            if (err) {
+                return console.error(err.message);
+            }
+        });
     }
 }
 
@@ -255,6 +253,7 @@ function parse_data(db) {
 
     var tmp = JSON.stringify(obj.words);
     var words = JSON.parse(tmp);
+    db.run("BEGIN TRANSACTION");
 
     for (var i = 0; i < words.length; i++) {
         var word = words[i];
@@ -266,7 +265,8 @@ function parse_data(db) {
             parse_kana(word, db);
         }
     }
-
+    db.run("COMMIT");
+    
     console.timeEnd("Parser Time");
 
 }
