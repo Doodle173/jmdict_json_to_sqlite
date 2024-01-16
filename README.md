@@ -32,7 +32,7 @@ Speeding up SQLite I/O times:
 https://github.com/TryGhost/node-sqlite3/issues/437
 
 
-NOTE:
+# NOTE:
 
 If any of the original authors stumble across this and you have any issues with me using / adapting code from these sources, please contact me.
 
