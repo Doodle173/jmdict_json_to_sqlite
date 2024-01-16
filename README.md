@@ -5,6 +5,7 @@ TO-DO (strikethrough = done):
 Automate the downloading & importing of jmdict-simplified
 Better documentation / comments
 Write utility SQL queries
+Clean up commented code
 
 Throughout this project I've used external articles/code to help solve certain issues I was having. 
 Here is the source to each one that contributed to solving an important problem: 
