@@ -2,6 +2,14 @@ const sqlite3 = require('sqlite3').verbose();
 
 var fs = require('fs');
 
+try{
+    fs.unlinkSync("./test.db");
+    console.log("Cleaned up existing database file.\n");
+}catch(err){
+    console.log("Failed to clean up existing database file.");
+    console.log(err);
+}
+
 const db = new sqlite3.Database('./test.db');
 
 var obj = JSON.parse(fs.readFileSync('data/jmdict-eng-3.5.0.json', 'utf8'));
@@ -74,14 +82,18 @@ async function init() {
      * for now.
      */
 
+    console.log("Finished creating all tables. \n");
+
     await sleep(1000);
 
     console.log("Parsing data into tables...");
     parse_data(db);
     console.log("Parsing complete.");
 
-    db.close();
+    console.log("Writing database to file...");
 
+    db.close();
+    console.log("Done!");
 }
 
 /**
@@ -94,6 +106,36 @@ function sleep(ms) {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
+}
+
+function parse_data(db) {
+    console.time("Parser Time");
+
+    var tmp = JSON.stringify(obj.words);
+    var words = JSON.parse(tmp);
+    db.run("BEGIN TRANSACTION");
+
+    for (var i = 0; i < words.length; i++) {
+        var word = words[i];
+
+        /**
+        * Parse this word's kanji fields.
+        */
+        if (word.kanji.length != 0) {
+            parse_kanji(word, db);
+        }
+
+        /**
+        * Parse this word's kana fields.
+        */
+        if (word.kana.length != 0) {
+            parse_kana(word, db);
+        }
+    }
+    db.run("COMMIT");
+    
+    console.timeEnd("Parser Time");
+
 }
 
 function parse_gloss(gloss, id, db) {
@@ -238,37 +280,17 @@ function parse_kanji(word, db) {
         // console.log(current_tag);
 
         // stmt = db.prepare(`INSERT INTO kanji(id, common, tag, txt) VALUES ("${word.id}", "${kanji.common}", "${current_tag}", "${kanji.text}")`);
-        stmt = db.prepare(`INSERT INTO kanji(id, common, tag, txt) VALUES (?, ?, ?, ?)`, word.id, kanji.common, current_tag, kanji.text);
-        stmt.run();
-        stmt.finalize();
+        // stmt = db.prepare(`INSERT INTO kanji(id, common, tag, txt) VALUES (?, ?, ?, ?)`, word.id, kanji.common, current_tag, kanji.text);
+        // stmt.run();
+        // stmt.finalize();
+
+        db.run(`INSERT INTO kanji(id, common, tag, txt) VALUES (?, ?, ?, ?)`, [word.id, kanji.common, current_tag, kanji.text], function (err) {
+            if (err) {
+                return console.error(err.message);
+            }
+        });
+
     }
-}
-
-
-function parse_data(db) {
-
-    console.time("Parser Time");
-
-
-
-    var tmp = JSON.stringify(obj.words);
-    var words = JSON.parse(tmp);
-    db.run("BEGIN TRANSACTION");
-
-    for (var i = 0; i < words.length; i++) {
-        var word = words[i];
-
-        /**
-        * Parse this word's kana fields.
-        */
-        if (word.kana.length != 0) {
-            parse_kana(word, db);
-        }
-    }
-    db.run("COMMIT");
-    
-    console.timeEnd("Parser Time");
-
 }
 
 function insert_tags(db) {
