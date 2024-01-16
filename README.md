@@ -11,6 +11,8 @@ A WIP utility to convert Scriptin's jmdict-simplified JSON files into a SQLite d
   
   - Clean up commented code
 
+# References & Sources:
+
 Throughout this project I've used external articles/code to help solve certain issues I was having. 
 Here is the source to each one that contributed to solving an important problem: 
 
