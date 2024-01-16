@@ -232,7 +232,7 @@ function parse_sense(word, db) {
         // stmt.run();
         // stmt.finalize();
 
-        db.run(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES (?, ?, ?, ?, ?)`, [word.id, pos, _appliesToKanji, appliesToKana, related], function (err) {
+        db.run(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES (?, ?, ?, ?, ?)`, [word.id, pos, _appliesToKanji, appliesToKana, _related], function (err) {
             if (err) {
                 return console.error(err.message);
             }
@@ -320,9 +320,15 @@ function insert_tags(db) {
     for (var tag in obj.tags) {
         // console.log(tag+": "+obj.tags[tag]);
         // stmt = db.prepare(`INSERT INTO tags(tag_type, tag) VALUES ("${tag}", "${obj.tags[tag]}")`);
-        stmt = db.prepare(`INSERT INTO tags(tag_type, tag) VALUES (?, ?)`, tag, obj.tags[tag]);
-        stmt.run();
-        stmt.finalize();
+        // stmt = db.prepare(`INSERT INTO tags(tag_type, tag) VALUES (?, ?)`, tag, obj.tags[tag]);
+        // stmt.run();
+        // stmt.finalize();
+        db.run(`INSERT INTO tags(tag_type, tag) VALUES (?, ?)`, [tag, obj.tags[tag]], function (err) {
+            if (err) {
+                return console.error(err.message);
+            }
+        });
+
     }
 }
 
@@ -330,17 +336,28 @@ function insert_revisions(db) {
     for (var i = 0; i < obj.dictRevisions.length; i++) {
         var rev = obj.dictRevisions[i];
 
-        stmt = db.prepare(`INSERT INTO revisions(revision) VALUES (?)`, rev);
-        stmt.run();
-        stmt.finalize();
+        // stmt = db.prepare(`INSERT INTO revisions(revision) VALUES (?)`, rev);
+        // stmt.run();
+        // stmt.finalize();
+        db.run(`INSERT INTO revisions(revision) VALUES (?)`, [rev], function (err) {
+            if (err) {
+                return console.error(err.message);
+            }
+        });
+
     }
 }
 
 function insert_languages(db) {
     obj.languages.forEach(async (lang) => {
-        stmt = db.prepare(`INSERT INTO languages(language) VALUES (?)`, lang);
-        stmt.run();
-        stmt.finalize();
+        // stmt = db.prepare(`INSERT INTO languages(language) VALUES (?)`, lang);
+        // stmt.run();
+        // stmt.finalize();
+        db.run(`INSERT INTO languages(language) VALUES (?)`, [lang], function (err) {
+            if (err) {
+                return console.error(err.message);
+            }
+        });
     });
 }
 
@@ -352,5 +369,12 @@ function insert_metadata(db) {
     }
 
     // var stmt = db.prepare(`INSERT INTO metadata(version, build_date, commonOnly) VALUES ("${obj.version}", "${obj.dictDate}", ${common})`);
-    db.run(`INSERT INTO metadata(version, build_date, commonOnly) VALUES (?, ?, ?)`, obj.version, obj.dictDate, common);
+    // db.run(`INSERT INTO metadata(version, build_date, commonOnly) VALUES (?, ?, ?)`, obj.version, obj.dictDate, common);
+
+    db.run(`INSERT INTO metadata(version, build_date, commonOnly) VALUES (?, ?, ?)`, [obj.version, obj.dictDate, common], function (err) {
+        if (err) {
+            return console.error(err.message);
+        }
+    });
+    
 }
