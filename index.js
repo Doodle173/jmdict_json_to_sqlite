@@ -160,10 +160,17 @@ function parse_gloss(gloss, id, db) {
     }
 
     // stmt = db.prepare(`INSERT INTO gloss(id, lang, gender, type, txt) VALUES("${id}", "${lang}", "${gender}", "${type}", "${text}")`);
-    stmt = db.prepare(`INSERT INTO gloss(id, lang, gender, type, txt) VALUES(?, ?, ?, ?, ?)`, id, lang, gender, type, text);
+    // stmt = db.prepare(`INSERT INTO gloss(id, lang, gender, type, txt) VALUES(?, ?, ?, ?, ?)`, id, lang, gender, type, text);
 
-    stmt.run();
-    stmt.finalize();
+    // stmt.run();
+    // stmt.finalize();
+
+    db.run(`INSERT INTO gloss(id, lang, gender, type, txt) VALUES(?, ?, ?, ?, ?)`, [id, lang, gender, type, text], function (err) {
+        if (err) {
+            return console.error(err.message);
+        }
+    });
+
 }
 
 function parse_sense(word, db) {
@@ -213,10 +220,10 @@ function parse_sense(word, db) {
             }
         }
 
-        // var gloss = sense.gloss;
-        // if (gloss.length != 0) {
-        //     parse_gloss(gloss, word.id, db);
-        // }
+        var gloss = sense.gloss;
+        if (gloss.length != 0) {
+            parse_gloss(gloss, word.id, db);
+        }
 
 
         // stmt = db.prepare(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES ("${word.id}", "${pos}", "${_appliesToKanji}", "${appliesToKana}", "${_related}")`);
