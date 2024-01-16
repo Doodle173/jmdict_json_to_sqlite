@@ -17,7 +17,7 @@ var obj = JSON.parse(fs.readFileSync('data/jmdict-eng-3.5.0.json', 'utf8'));
 
 init();
 
-function init(){
+async function init() {
     db.exec("CREATE TABLE metadata (version TEXT, build_date TEXT, commonOnly INTEGER)", function (err) {
         if (err) {
             return console.error(err.message);
@@ -30,14 +30,14 @@ function init(){
         }
         console.log("Languages table has been created.");
     });
-    
+
     db.exec("CREATE TABLE revisions(revision TEXT)", function (err) {
         if (err) {
             return console.error(err.message);
         }
         console.log("Revisions table has been created.");
     });
-    
+
     db.exec("CREATE TABLE tags (tag_type TEXT, tag TEXT)", function (err) {
         if (err) {
             return console.error(err.message);
@@ -50,21 +50,21 @@ function init(){
         }
         console.log("Kana table has been created.");
     });
-    
+
     db.exec("CREATE TABLE kanji (id TEXT, common TEXT, tag TEXT, txt TEXT)", function (err) {
         if (err) {
             return console.error(err.message);
         }
         console.log("Kanji table has been created.");
     });
-    
+
     db.exec("CREATE TABLE sense (id TEXT, part_of_speech TEXT, applies_to_kanji TEXT, applies_to_kana TEXT, related TEXT)", function (err) {
         if (err) {
             return console.error(err.message);
         }
         console.log("Sense table has been created.");
     });
-    
+
     db.exec("CREATE TABLE gloss (id TEXT, lang TEXT, gender TEXT, type TEXT, txt TEXT)", function (err) {
         if (err) {
             return console.error(err.message);
@@ -77,16 +77,39 @@ function init(){
     insert_languages(db);
     insert_tags(db);
 
-    // console.log("Parsing data into tables...");
-    // parse_data(db);
-    // console.log("Parsing complete.");
+    /**
+     * This is probably not a great solution to the concurrency problems I am having,
+     * but it's the only thing I've tried that seems to work, so this is the solution
+     * for now.
+     */
+
+    await sleep(1000);
+
+    console.log("Parsing data into tables...");
+    parse_data(db);
+    console.log("Parsing complete.");
+
+    db.close();
+
+}
+
+/**
+ * Source: Aminadav Glickshtein
+ * https://stackoverflow.com/questions/14249506/how-can-i-wait-in-node-js-javascript-l-need-to-pause-for-a-period-of-time
+ * @param {*} ms 
+ * @returns 
+ */
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
 }
 
 function parse_gloss(gloss, id, db) {
     // console.log(gloss);
 
     var lang, gender, type, text = "";
-    for(var i=0; i < gloss.length; i++){
+    for (var i = 0; i < gloss.length; i++) {
         lang = gloss[i].lang;
         gender = gloss[i].gender;
         type = gloss[i].type;
@@ -140,15 +163,15 @@ function parse_sense(word, db) {
         var _related = "";
         for (var m = 0; m < sense.related.length; m++) {
             var related = sense.related[m];
-            
-            for(var n = 0; n < related.length; n++){
+
+            for (var n = 0; n < related.length; n++) {
                 _related = related[n];
                 // console.log(_related);
             }
         }
 
         var gloss = sense.gloss;
-        if(gloss.length != 0){
+        if (gloss.length != 0) {
             parse_gloss(gloss, word.id, db);
         }
 
@@ -191,7 +214,7 @@ function parse_kana(word, db) {
         }
         // stmt = db.prepare(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES ("${word.id}", "${appliesToKanji}", "${kana.common}", "${current_tag}", "${kana.text}")`);
         stmt = db.prepare(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES (?, ?, ?, ?, ?)`, word.id, appliesToKanji, kana.common, current_tag, kana.text);
-        
+
 
         stmt.run();
         stmt.finalize();
@@ -259,7 +282,7 @@ function insert_tags(db) {
 }
 
 function insert_revisions(db) {
-    for(var i=0; i < obj.dictRevisions.length; i++){
+    for (var i = 0; i < obj.dictRevisions.length; i++) {
         var rev = obj.dictRevisions[i];
 
         stmt = db.prepare(`INSERT INTO revisions(revision) VALUES (?)`, rev);
