@@ -10,9 +10,9 @@ try{
     console.log(err);
 }
 
-const db = new sqlite3.Database('./test.db');
-
 var obj = JSON.parse(fs.readFileSync('data/jmdict-eng-3.5.0.json', 'utf8'));
+
+const db = new sqlite3.Database('./jmdict_eng.db');
 
 init();
 
