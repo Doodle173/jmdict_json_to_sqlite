@@ -159,12 +159,6 @@ function parse_gloss(gloss, id, db) {
         text = gloss[i].text;
     }
 
-    // stmt = db.prepare(`INSERT INTO gloss(id, lang, gender, type, txt) VALUES("${id}", "${lang}", "${gender}", "${type}", "${text}")`);
-    // stmt = db.prepare(`INSERT INTO gloss(id, lang, gender, type, txt) VALUES(?, ?, ?, ?, ?)`, id, lang, gender, type, text);
-
-    // stmt.run();
-    // stmt.finalize();
-
     db.run(`INSERT INTO gloss(id, lang, gender, type, txt) VALUES(?, ?, ?, ?, ?)`, [id, lang, gender, type, text], function (err) {
         if (err) {
             return console.error(err.message);
@@ -225,13 +219,6 @@ function parse_sense(word, db) {
             parse_gloss(gloss, word.id, db);
         }
 
-
-        // stmt = db.prepare(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES ("${word.id}", "${pos}", "${_appliesToKanji}", "${appliesToKana}", "${_related}")`);
-        // stmt = db.prepare(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES (?, ?, ?, ?, ?)`, word.id, pos, _appliesToKanji, appliesToKana, related);
-
-        // stmt.run();
-        // stmt.finalize();
-
         db.run(`INSERT INTO sense(id, part_of_speech, applies_to_kanji, applies_to_kana, related) VALUES (?, ?, ?, ?, ?)`, [word.id, pos, _appliesToKanji, appliesToKana, _related], function (err) {
             if (err) {
                 return console.error(err.message);
@@ -269,12 +256,6 @@ function parse_kana(word, db) {
         for (var l = 0; l < kana_applies_to_kanji.length; l++) {
             appliesToKanji = kana_applies_to_kanji[l];
         }
-        // stmt = db.prepare(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES ("${word.id}", "${appliesToKanji}", "${kana.common}", "${current_tag}", "${kana.text}")`);
-        // stmt = db.prepare(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES (?, ?, ?, ?, ?)`, word.id, appliesToKanji, kana.common, current_tag, kana.text);
-
-
-        // stmt.run();
-        // stmt.finalize();
 
         db.run(`INSERT INTO kana(id, applies_to_kanji, common, tag, txt) VALUES (?, ?, ?, ?, ?)`, [word.id, appliesToKanji, kana.common, current_tag, kana.text], function (err) {
             if (err) {
@@ -300,13 +281,6 @@ function parse_kanji(word, db) {
             current_tag = kanji_tags[j];
         }
 
-        // console.log(current_tag);
-
-        // stmt = db.prepare(`INSERT INTO kanji(id, common, tag, txt) VALUES ("${word.id}", "${kanji.common}", "${current_tag}", "${kanji.text}")`);
-        // stmt = db.prepare(`INSERT INTO kanji(id, common, tag, txt) VALUES (?, ?, ?, ?)`, word.id, kanji.common, current_tag, kanji.text);
-        // stmt.run();
-        // stmt.finalize();
-
         db.run(`INSERT INTO kanji(id, common, tag, txt) VALUES (?, ?, ?, ?)`, [word.id, kanji.common, current_tag, kanji.text], function (err) {
             if (err) {
                 return console.error(err.message);
@@ -318,11 +292,6 @@ function parse_kanji(word, db) {
 
 function insert_tags(db) {
     for (var tag in obj.tags) {
-        // console.log(tag+": "+obj.tags[tag]);
-        // stmt = db.prepare(`INSERT INTO tags(tag_type, tag) VALUES ("${tag}", "${obj.tags[tag]}")`);
-        // stmt = db.prepare(`INSERT INTO tags(tag_type, tag) VALUES (?, ?)`, tag, obj.tags[tag]);
-        // stmt.run();
-        // stmt.finalize();
         db.run(`INSERT INTO tags(tag_type, tag) VALUES (?, ?)`, [tag, obj.tags[tag]], function (err) {
             if (err) {
                 return console.error(err.message);
@@ -350,9 +319,6 @@ function insert_revisions(db) {
 
 function insert_languages(db) {
     obj.languages.forEach(async (lang) => {
-        // stmt = db.prepare(`INSERT INTO languages(language) VALUES (?)`, lang);
-        // stmt.run();
-        // stmt.finalize();
         db.run(`INSERT INTO languages(language) VALUES (?)`, [lang], function (err) {
             if (err) {
                 return console.error(err.message);
@@ -367,9 +333,6 @@ function insert_metadata(db) {
     if (obj.commonOnly == true) {
         common = 1;
     }
-
-    // var stmt = db.prepare(`INSERT INTO metadata(version, build_date, commonOnly) VALUES ("${obj.version}", "${obj.dictDate}", ${common})`);
-    // db.run(`INSERT INTO metadata(version, build_date, commonOnly) VALUES (?, ?, ?)`, obj.version, obj.dictDate, common);
 
     db.run(`INSERT INTO metadata(version, build_date, commonOnly) VALUES (?, ?, ?)`, [obj.version, obj.dictDate, common], function (err) {
         if (err) {
