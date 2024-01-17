@@ -4,9 +4,10 @@
   },
   "name": "jmdict_json_to_sqlite",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/jmdict.js",
   "devDependencies": {},
   "scripts": {
+    "start": "node ./src/jmdict.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
