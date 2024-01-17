@@ -3,7 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 var fs = require('fs');
 
 try{
-    fs.unlinkSync("./jmdict_eng.db");
+    fs.unlinkSync("./build/jmdict_eng.db");
     console.log("Cleaned up existing database file.\n");
 }catch(err){
     console.log("Failed to clean up existing database file.");
@@ -12,7 +12,7 @@ try{
 
 var obj = JSON.parse(fs.readFileSync("./data/jmdict-eng-3.5.0.json", 'utf8'));
 
-const db = new sqlite3.Database('./jmdict_eng.db');
+const db = new sqlite3.Database('./build/jmdict_eng.db');
 
 init();
 
