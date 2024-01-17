@@ -10,9 +10,9 @@ try{
     console.log(err);
 }
 
-var obj = JSON.parse(fs.readFileSync('data/jmdict-eng-3.5.0.json', 'utf8'));
+var obj = JSON.parse(fs.readFileSync('../data/jmdict-eng-3.5.0.json', 'utf8'));
 
-const db = new sqlite3.Database('./jmdict_eng.db');
+const db = new sqlite3.Database('../build/jmdict_eng.db');
 
 init();
 
